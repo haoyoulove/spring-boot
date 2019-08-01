@@ -28,20 +28,19 @@ import org.springframework.util.ClassUtils;
 public enum WebApplicationType {
 
 	/**
-	 * The application should not run as a web application and should not start an
-	 * embedded web server.
+	 * The application should not run as a web application and should not start an embedded web server.
 	 */
 	NONE,
 
 	/**
 	 * The application should run as a servlet-based web application and should start an
-	 * embedded servlet web server.
+	  embedded servlet web server.
 	 */
 	SERVLET,
 
 	/**
 	 * The application should run as a reactive web application and should start an
-	 * embedded reactive web server.
+	  embedded reactive web server.
 	 */
 	REACTIVE;
 
