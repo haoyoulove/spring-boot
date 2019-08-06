@@ -67,7 +67,7 @@ public @interface SpringBootApplication {
 
 	/**
 	 * Exclude specific auto-configuration class names such that they will never be
-	 * applied.
+	 applied.
 	 * @return the class names to exclude
 	 * @since 1.3.0
 	 */
@@ -76,7 +76,7 @@ public @interface SpringBootApplication {
 
 	/**
 	 * Base packages to scan for annotated components. Use {@link #scanBasePackageClasses}
-	 * for a type-safe alternative to String-based package names.
+	 for a type-safe alternative to String-based package names.
 	 * @return base packages to scan
 	 * @since 1.3.0
 	 */
