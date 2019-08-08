@@ -48,7 +48,7 @@ final class ConfigurationPropertiesBeanDefinitionRegistrar {
 	}
 
 	static void register(BeanDefinitionRegistry registry, ConfigurableListableBeanFactory beanFactory, Class<?> type) {
-		MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations.from(type, SearchStrategy.EXHAUSTIVE)
+		MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY)
 				.get(ConfigurationProperties.class);
 		String name = getName(type, annotation);
 		if (!containsBeanDefinition(beanFactory, name)) {

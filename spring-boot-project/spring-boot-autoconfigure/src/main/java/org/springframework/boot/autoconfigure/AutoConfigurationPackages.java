@@ -80,21 +80,23 @@ public abstract class AutoConfigurationPackages {
 
 	/**
 	 * Programmatically registers the auto-configuration package names. Subsequent
-	 * invocations will add the given package names to those that have already been
-	 * registered. You can use this method to manually define the base packages that will
-	 * be used for a given {@link BeanDefinitionRegistry}. Generally it's recommended that
-	 * you don't call this method directly, but instead rely on the default convention
-	 * where the package name is set from your {@code @EnableAutoConfiguration}
-	 * configuration class or classes.
+	  invocations will add the given package names to those that have already been
+	  registered. You can use this method to manually define the base packages that will
+	  be used for a given {@link BeanDefinitionRegistry}. Generally it's recommended that
+	  you don't call this method directly, but instead rely on the default convention
+	  where the package name is set from your {@code @EnableAutoConfiguration}
+	  configuration class or classes.
 	 * @param registry the bean definition registry
 	 * @param packageNames the package names to set
 	 */
 	public static void register(BeanDefinitionRegistry registry, String... packageNames) {
+		// <1> 如果已经存在该 BEAN ，则修改其包（package）属性
 		if (registry.containsBeanDefinition(BEAN)) {
 			BeanDefinition beanDefinition = registry.getBeanDefinition(BEAN);
 			ConstructorArgumentValues constructorArguments = beanDefinition.getConstructorArgumentValues();
 			constructorArguments.addIndexedArgumentValue(0, addBasePackages(constructorArguments, packageNames));
 		}
+		// <2> 如果不存在该 BEAN ，则创建一个 Bean ，并进行注册
 		else {
 			GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
 			beanDefinition.setBeanClass(BasePackages.class);
@@ -113,8 +115,7 @@ public abstract class AutoConfigurationPackages {
 	}
 
 	/**
-	 * {@link ImportBeanDefinitionRegistrar} to store the base package from the importing
-	 * configuration.
+	 * {@link ImportBeanDefinitionRegistrar} to store the base package from the importing configuration.
 	 */
 	static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImports {
 

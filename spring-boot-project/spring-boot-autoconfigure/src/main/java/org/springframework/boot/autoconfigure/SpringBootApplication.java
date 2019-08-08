@@ -46,15 +46,23 @@ import org.springframework.core.annotation.AliasFor;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  * @since 1.2.0
+ *
+ * 所谓的元注解：其实就是可以注解到别的注解上的注解。
+ * 组合注解   被注解的注解
+ * 组合注解同时具备元注解的功能
+ * 组合注解 简化了注解配置。也提供了很好的扩展性。
+ *
+ *  **也就是同时拥有当前这些注解的功能**
+ *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Inherited
-@SpringBootConfiguration
-@EnableAutoConfiguration
+@Inherited  //可是使得该自定义注解@SpringBootApplication 被子类继承
+@SpringBootConfiguration  // 和@Configuration功能类似 可以将类中声明的一个或者多个@bean注解标记的方法的实例纳入Spring容器
+@EnableAutoConfiguration // 用于开启自动配置功能
 @ComponentScan(excludeFilters = { @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
-		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
+		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) }) // 扫描指定路径下的组件,这里是抛开这些类
 @ConfigurationPropertiesScan
 public @interface SpringBootApplication {
 
