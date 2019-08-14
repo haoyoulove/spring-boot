@@ -88,6 +88,7 @@ import org.springframework.core.env.Environment;
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @since 1.1.0
+ * Spring Boot通过@ConditionalOnProperty来控制Configuration是否生效
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
@@ -98,14 +99,16 @@ public @interface ConditionalOnProperty {
 	/**
 	 * Alias for {@link #name()}.
 	 * @return the names
+	 * //数组，获取对应property名称的值，与name不可同时使用
 	 */
 	String[] value() default {};
 
 	/**
 	 * A prefix that should be applied to each property. The prefix automatically ends
-	 * with a dot if not specified. A valid prefix is defined by one or more words
-	 * separated with dots (e.g. {@code "acme.system.feature"}).
+	 with a dot if not specified. A valid prefix is defined by one or more words
+	 separated with dots (e.g. {@code "acme.system.feature"}).
 	 * @return the prefix
+	 * //property名称的前缀，可有可无
 	 */
 	String prefix() default "";
 
@@ -118,6 +121,7 @@ public @interface ConditionalOnProperty {
 	 * Use the dashed notation to specify each property, that is all lower case with a "-"
 	 * to separate words (e.g. {@code my-long-property}).
 	 * @return the names
+	 * //数组，property完整名称或部分名称（可与prefix组合使用，组成完整的property名称），与value不可同时使用
 	 */
 	String[] name() default {};
 
@@ -125,6 +129,7 @@ public @interface ConditionalOnProperty {
 	 * The string representation of the expected value for the properties. If not
 	 * specified, the property must <strong>not</strong> be equal to {@code false}.
 	 * @return the expected value
+	 * //可与name组合使用，比较获取到的属性值与havingValue给定的值是否相同，相同才加载配置
 	 */
 	String havingValue() default "";
 
@@ -132,6 +137,7 @@ public @interface ConditionalOnProperty {
 	 * Specify if the condition should match if the property is not set. Defaults to
 	 * {@code false}.
 	 * @return if should match if the property is missing
+	 * //缺少该property时是否可以加载。如果为true，没有该property也会正常加载；反之报错
 	 */
 	boolean matchIfMissing() default false;
 
