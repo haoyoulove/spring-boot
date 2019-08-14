@@ -44,7 +44,7 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 	private ClassLoader beanClassLoader;
 
 	// 来自 AutoConfigurationImportFilter 接口
-	// 配置过滤
+	// 配置过滤  org.springframework.boot.autoconfigure.AutoConfigurationImportSelector.filter 具体核心实现
 	@Override
 	public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
 		// <1> 获得 ConditionEvaluationReport 对象

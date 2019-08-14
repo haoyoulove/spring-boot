@@ -39,7 +39,7 @@ public abstract class SpringBootCondition implements Condition {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	// 注解过滤
+	// 注解过滤 用于注解来实现
 	@Override
 	public final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		// <1> 获得注解的是方法名还是类名
