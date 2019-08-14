@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class TestConfiguration {
 
 	@Bean
-	@Conditional(TestCondition.class)
+//	@Conditional(TestCondition.class)
 	public Object testObject() {
 		return new Object();
 	}
