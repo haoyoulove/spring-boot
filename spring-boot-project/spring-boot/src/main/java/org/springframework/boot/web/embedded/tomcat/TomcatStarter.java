@@ -46,6 +46,7 @@ class TomcatStarter implements ServletContainerInitializer {
 		this.initializers = initializers;
 	}
 
+	// 内置tomcat启动方式
 	@Override
 	public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
 		try {

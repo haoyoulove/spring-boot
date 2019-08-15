@@ -89,6 +89,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @see AnnotationConfigServletWebServerApplicationContext
  * @see XmlServletWebServerApplicationContext
  * @see ServletWebServerFactory
+ * 6 层迭代加载
  */
 public class ServletWebServerApplicationContext extends GenericWebApplicationContext
 		implements ConfigurableWebServerApplicationContext {
@@ -146,11 +147,12 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		}
 	}
 
+	//第一层：onRefresh()
 	@Override
 	protected void onRefresh() {
 		super.onRefresh();
 		try {
-			createWebServer();
+			createWebServer();  //第二层的入口
 		}
 		catch (Throwable ex) {
 			throw new ApplicationContextException("Unable to start web server", ex);
@@ -172,12 +174,13 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		stopAndReleaseWebServer();
 	}
 
+	// 第二层：createWebServer()
 	private void createWebServer() {
 		WebServer webServer = this.webServer;
 		ServletContext servletContext = getServletContext();
 		if (webServer == null && servletContext == null) {
 			ServletWebServerFactory factory = getWebServerFactory();
-			this.webServer = factory.getWebServer(getSelfInitializer());
+			this.webServer = factory.getWebServer(getSelfInitializer());  // 第三层的入口
 		}
 		else if (servletContext != null) {
 			try {
@@ -215,6 +218,9 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * setup of this {@link WebApplicationContext}.
 	 * @return the self initializer
 	 * @see #prepareWebApplicationContext(ServletContext)
+	 * 第三层：getSelfInitializer()
+	 *
+	 * 回调式设计
 	 */
 	private org.springframework.boot.web.servlet.ServletContextInitializer getSelfInitializer() {
 		return this::selfInitialize;
@@ -224,6 +230,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		prepareWebApplicationContext(servletContext);
 		registerApplicationScope(servletContext);
 		WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
+		// 第四层的入口
 		for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
 			beans.onStartup(servletContext);
 		}
@@ -248,9 +255,11 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * {@link ServletContextInitializer}, {@link Servlet}, {@link Filter} and certain
 	 * {@link EventListener} beans.
 	 * @return the servlet initializer beans
+	 *
+	 *  第四层：getServletContextInitializerBeans()
 	 */
 	protected Collection<ServletContextInitializer> getServletContextInitializerBeans() {
-		return new ServletContextInitializerBeans(getBeanFactory());
+		return new ServletContextInitializerBeans(getBeanFactory()); //第五层的入口
 	}
 
 	/**
