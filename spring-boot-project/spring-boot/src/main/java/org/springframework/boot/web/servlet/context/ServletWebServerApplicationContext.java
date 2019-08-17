@@ -279,7 +279,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
 
 		// <4> 获得所有 ServletContextInitializer ，并逐个进行启动
-		// 第四层的入口
+		// 第四层的入口 getServletContextInitializerBeans()  重要
 		for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
 			beans.onStartup(servletContext);
 		}
