@@ -929,6 +929,12 @@ could have been `SecurityProperties`.
 * `acme.security.password`.
 * `acme.security.roles`, with a collection of `String`.
 
+NOTE: Spring Boot auto-configuration heavily makes use of `@ConfigurationProperties` for easily
+configuring auto-configured beans. Similar to auto-configuration classes, `@ConfigurationProperties`
+classes available in Spring Boot are for internal use only. The properties that map to the class,
+which are configured via properties files, YAML files, environment variables etc., are public API but
+the content of the class itself is not meant to be used directly.
+
 [NOTE]
 ====
 Getters and setters are usually mandatory, since binding is through standard Java Beans
@@ -4385,9 +4391,9 @@ properties, as shown in the following example:
 	spring.data.neo4j.password=secret
 ----
 
-You can take full control over the session creation by adding a
-`org.neo4j.ogm.config.Configuration` `@Bean`. Also, adding a `@Bean` of type
-`SessionFactory` disables the auto-configuration and gives you full control.
+You can take full control over the session creation by either adding a
+`org.neo4j.ogm.config.Configuration` bean or a `org.neo4j.ogm.session.SessionFactory`
+bean.
 
 
 
@@ -7927,26 +7933,10 @@ for assertions, as follows:
 
 [source,java,indent=0]
 ----
-	import org.junit.Rule;
-	import org.junit.Test;
-	import org.springframework.boot.test.rule.OutputCapture;
-
-	import static org.hamcrest.Matchers.*;
-	import static org.junit.Assert.*;
-
-	public class MyTest {
-
-		@Rule
-		public OutputCapture capture = new OutputCapture();
-
-		@Test
-		public void testName() throws Exception {
-			System.out.println("Hello World!");
-			assertThat(capture.toString(), containsString("World"));
-		}
-
-	}
+include::{test-examples}/test/rule/OutputCaptureTests.java[tag=test]
 ----
+
+
 
 [[boot-features-rest-templates-test-utility]]
 ==== TestRestTemplate

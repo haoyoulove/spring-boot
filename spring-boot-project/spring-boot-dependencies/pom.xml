@@ -53,6 +53,7 @@
 		<commons-pool2.version>2.6.2</commons-pool2.version>
 		<couchbase-client.version>2.7.7</couchbase-client.version>
 		<couchbase-cache-client.version>2.1.0</couchbase-cache-client.version>
+		<dependency-management-plugin.version>1.0.8.RELEASE</dependency-management-plugin.version>
 		<derby.version>10.14.2.0</derby.version>
 		<dom4j.version>1.6.1</dom4j.version>
 		<dropwizard-metrics.version>4.0.5</dropwizard-metrics.version>
@@ -80,7 +81,7 @@
 		<httpcore.version>4.4.11</httpcore.version>
 		<infinispan.version>9.4.15.Final</infinispan.version>
 		<influxdb-java.version>2.14</influxdb-java.version>
-		<jackson.version>2.9.9</jackson.version>
+		<jackson.version>2.9.9.20190807</jackson.version>
 		<janino.version>3.0.15</janino.version>
 		<javax-activation.version>1.2.0</javax-activation.version>
 		<javax-annotation.version>1.3.2</javax-annotation.version>
@@ -113,7 +114,7 @@
 		<joda-time.version>2.10.3</joda-time.version>
 		<jolokia.version>1.6.2</jolokia.version>
 		<!-- Deprecated in favor of "johnzon.version" -->
-		<johnzon-jsonb.version>1.1.12</johnzon-jsonb.version>
+		<johnzon-jsonb.version>1.1.13</johnzon-jsonb.version>
 		<johnzon.version>${johnzon-jsonb.version}</johnzon.version>
 		<jooq.version>3.11.11</jooq.version>
 		<jsonassert.version>1.5.0</jsonassert.version>
@@ -153,7 +154,7 @@
 		<reactive-streams.version>1.0.2</reactive-streams.version>
 		<rxjava.version>1.3.8</rxjava.version>
 		<rxjava-adapter.version>1.2.1</rxjava-adapter.version>
-		<rxjava2.version>2.2.10</rxjava2.version>
+		<rxjava2.version>2.2.11</rxjava2.version>
 		<selenium.version>3.14.0</selenium.version>
 		<selenium-htmlunit.version>2.33.0</selenium-htmlunit.version>
 		<sendgrid.version>4.3.0</sendgrid.version>
@@ -162,21 +163,21 @@
 		<snakeyaml.version>1.23</snakeyaml.version>
 		<solr.version>7.7.2</solr.version>
 		<!-- deprecated in favor of "spring-framework.version" -->
-		<spring.version>5.1.9.BUILD-SNAPSHOT</spring.version>
-		<spring-amqp.version>2.1.8.BUILD-SNAPSHOT</spring-amqp.version>
+		<spring.version>5.1.9.RELEASE</spring.version>
+		<spring-amqp.version>2.1.8.RELEASE</spring-amqp.version>
 		<spring-batch.version>4.1.2.RELEASE</spring-batch.version>
 		<spring-cloud-connectors.version>2.0.6.RELEASE</spring-cloud-connectors.version>
-		<spring-data-releasetrain.version>Lovelace-BUILD-SNAPSHOT</spring-data-releasetrain.version>
+		<spring-data-releasetrain.version>Lovelace-SR10</spring-data-releasetrain.version>
 		<spring-framework.version>${spring.version}</spring-framework.version>
-		<spring-hateoas.version>0.25.1.RELEASE</spring-hateoas.version>
-		<spring-integration.version>5.1.7.BUILD-SNAPSHOT</spring-integration.version>
-		<spring-kafka.version>2.2.8.BUILD-SNAPSHOT</spring-kafka.version>
+		<spring-hateoas.version>0.25.2.RELEASE</spring-hateoas.version>
+		<spring-integration.version>5.1.7.RELEASE</spring-integration.version>
+		<spring-kafka.version>2.2.8.RELEASE</spring-kafka.version>
 		<spring-ldap.version>2.3.2.RELEASE</spring-ldap.version>
 		<spring-plugin.version>1.2.0.RELEASE</spring-plugin.version>
 		<spring-restdocs.version>2.0.3.RELEASE</spring-restdocs.version>
 		<spring-retry.version>1.2.4.RELEASE</spring-retry.version>
-		<spring-security.version>5.1.5.RELEASE</spring-security.version>
-		<spring-session-bom.version>Bean-BUILD-SNAPSHOT</spring-session-bom.version>
+		<spring-security.version>5.1.6.RELEASE</spring-security.version>
+		<spring-session-bom.version>Bean-SR7</spring-session-bom.version>
 		<spring-ws.version>3.0.7.RELEASE</spring-ws.version>
 		<sqlite-jdbc.version>3.25.2</sqlite-jdbc.version>
 		<statsd-client.version>3.1.0</statsd-client.version>
@@ -189,7 +190,7 @@
 		<thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
 		<tomcat.version>9.0.22</tomcat.version>
 		<unboundid-ldapsdk.version>4.0.11</unboundid-ldapsdk.version>
-		<undertow.version>2.0.22.Final</undertow.version>
+		<undertow.version>2.0.23.Final</undertow.version>
 		<webjars-hal-browser.version>3325375</webjars-hal-browser.version>
 		<webjars-locator-core.version>0.35</webjars-locator-core.version>
 		<woodstox.version>5.0.3</woodstox.version>
@@ -1068,6 +1069,11 @@
 				<groupId>io.searchbox</groupId>
 				<artifactId>jest</artifactId>
 				<version>${jest.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.spring.gradle</groupId>
+				<artifactId>dependency-management-plugin</artifactId>
+				<version>${dependency-management-plugin.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.undertow</groupId>

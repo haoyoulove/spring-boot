@@ -14,23 +14,31 @@
  * limitations under the License.
  */
 
-package org.springframework.boot.configurationsample.generic;
+package org.springframework.boot.docs.test.rule;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.Rule;
+import org.junit.Test;
+
+import org.springframework.boot.test.rule.OutputCapture;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * A pojo with a complex generic signature.
+ * Sample showcasing the use of {@link OutputCapture}.
  *
- * @param <T> the generic type
  * @author Stephane Nicoll
  */
-public class UpperBoundGenericPojo<T extends Enum<T>> {
+// tag::test[]
+public class OutputCaptureTests {
 
-	private final Map<T, String> mappings = new HashMap<>();
+	@Rule
+	public final OutputCapture capture = new OutputCapture();
 
-	public Map<T, String> getMappings() {
-		return this.mappings;
+	@Test
+	public void testName() {
+		System.out.println("Hello World!");
+		assertThat(this.capture.toString()).contains("World");
 	}
 
 }
+// end::test[]
