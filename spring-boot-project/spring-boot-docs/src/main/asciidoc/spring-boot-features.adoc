@@ -970,6 +970,12 @@ could have been `SecurityProperties`.
 * `acme.security.password`.
 * `acme.security.roles`, with a collection of `String` that defaults to `USER`.
 
+NOTE: Spring Boot auto-configuration heavily makes use of `@ConfigurationProperties` for easily
+configuring auto-configured beans. Similar to auto-configuration classes, `@ConfigurationProperties`
+classes available in Spring Boot are for internal use only. The properties that map to the class,
+which are configured via properties files, YAML files, environment variables etc., are public API but
+the content of the class itself is not meant to be used directly.
+
 [NOTE]
 ====
 Such arrangement relies on a default empty constructor and getters and setters are usually
@@ -2502,9 +2508,9 @@ welcome page of the application.
 
 [[boot-features-spring-mvc-favicon]]
 ==== Custom Favicon
-Spring Boot looks for a `favicon.ico` in the configured static content locations and the
-root of the classpath (in that order). If such a file is present, it is automatically
-used as the favicon of the application.
+As with other static resources, Spring Boot looks for a `favicon.ico` in the configured
+static content locations. If such a file is present, it is automatically used as the
+favicon of the application.
 
 
 [[boot-features-spring-mvc-pathmatch]]
@@ -3799,8 +3805,8 @@ to validate tokens via introspection:
 
 Again, the same properties are applicable for both servlet and reactive applications.
 
-Alternatively, you can define your own `OAuth2TokenIntrospectionClient` bean for servlet applications
-or a `ReactiveOAuth2TokenIntrospectionClient` for reactive applications.
+Alternatively, you can define your own `OpaqueTokenIntrospector` bean for servlet applications
+or a `ReactiveOpaqueTokenIntrospector` for reactive applications.
 
 ==== Authorization Server
 Currently, Spring Security does not provide support for implementing an OAuth 2.0
@@ -4667,9 +4673,9 @@ properties, as shown in the following example:
 	spring.data.neo4j.password=secret
 ----
 
-You can take full control over the session creation by adding a
-`org.neo4j.ogm.config.Configuration` `@Bean`. Also, adding a `@Bean` of type
-`SessionFactory` disables the auto-configuration and gives you full control.
+You can take full control over the session creation by either adding a
+`org.neo4j.ogm.config.Configuration` bean or a `org.neo4j.ogm.session.SessionFactory`
+bean.
 
 
 
@@ -8291,30 +8297,15 @@ which auto-configures one for you.
 [[boot-features-output-capture-test-utility]]
 ==== OutputCapture
 `OutputCapture` is a JUnit `Extension` that you can use to capture `System.out` and
-`System.err` output. To use with {@link ExtendWith @ExtendWith}, you can inject
-`CapturedOutput` as an argument to your test class constructor or test method as follows:
+`System.err` output. To use with `@ExtendWith`, you can inject `CapturedOutput` as an
+argument to your test class constructor or test method as follows:
 
 [source,java,indent=0]
 ----
-	import org.junit.jupiter.api.Test;
-    import org.junit.jupiter.api.extension.ExtendWith;
-
-    import org.springframework.boot.test.system.CapturedOutput;
-    import org.springframework.boot.test.system.OutputCaptureExtension;
-
-	import static org.assertj.core.api.Assertions.assertThat;
-
-	@ExtendWith(OutputCaptureExtension.class)
-	class MyTest {
-
-		@Test
-		void testName(CapturedOutput output) {
-			System.out.println("Hello World!");
-			assertThat(output).contains("World"));
-		}
-
-	}
+include::{test-examples}/test/system/OutputCaptureTests.java[tag=test]
 ----
+
+
 
 [[boot-features-rest-templates-test-utility]]
 ==== TestRestTemplate

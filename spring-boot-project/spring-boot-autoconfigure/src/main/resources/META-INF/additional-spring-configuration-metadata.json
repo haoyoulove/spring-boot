@@ -700,12 +700,6 @@
       "defaultValue": ".mustache"
     },
     {
-      "name": "spring.mvc.favicon.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable resolution of favicon.ico.",
-      "defaultValue": true
-    },
-    {
       "name": "spring.mvc.formcontent.putfilter.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable Spring's HttpPutFormContentFilter.",
@@ -1054,7 +1048,7 @@
       "description": "Check the change log location exists.",
       "defaultValue": true,
       "deprecation": {
-        "replacement": "spring.liquibase.check-change-log-location",
+        "reason": "Liquibase has it's own check that checks if the change log location exists making this property redundant.",
         "level": "error"
       }
     },
@@ -1960,6 +1954,16 @@
       "description": "Store password for the trust store file.",
       "deprecation": {
         "replacement": "spring.kafka.ssl.trust-store-password",
+        "level": "error"
+      }
+    },
+    {
+      "name": "spring.liquibase.check-change-log-location",
+      "type": "java.lang.Boolean",
+      "description": "Check the change log location exists.",
+      "defaultValue": true,
+      "deprecation": {
+        "reason": "Liquibase has it's own check that checks if the change log location exists making this property redundant.",
         "level": "error"
       }
     },

@@ -291,6 +291,15 @@ class SpringApplicationTests {
 	@Test
 	void bindsYamlStyleBannerModeToSpringApplication() {
 		SpringApplication application = new SpringApplication(ExampleConfig.class);
+		application.setDefaultProperties(Collections.singletonMap("spring.main.banner-mode", false));
+		application.setWebApplicationType(WebApplicationType.NONE);
+		this.context = application.run();
+		assertThat(application).hasFieldOrPropertyWithValue("bannerMode", Banner.Mode.OFF);
+	}
+
+	@Test
+	void bindsBooleanAsStringBannerModeToSpringApplication() {
+		SpringApplication application = new SpringApplication(ExampleConfig.class);
 		application.setWebApplicationType(WebApplicationType.NONE);
 		this.context = application.run("--spring.main.banner-mode=false");
 		assertThat(application).hasFieldOrPropertyWithValue("bannerMode", Banner.Mode.OFF);
@@ -1074,6 +1083,14 @@ class SpringApplicationTests {
 		assertThat(new SpringApplication(ExampleConfig.class, OverrideConfig.class)
 				.run("--spring.main.allow-bean-definition-overriding=true", "--spring.main.web-application-type=none")
 				.getBean("someBean")).isEqualTo("override");
+	}
+
+	@Test
+	void relaxedBindingShouldWorkBeforeEnvironmentIsPrepared() {
+		SpringApplication application = new SpringApplication(ExampleConfig.class);
+		application.setWebApplicationType(WebApplicationType.NONE);
+		this.context = application.run("--spring.config.additionalLocation=classpath:custom-config/");
+		assertThat(this.context.getEnvironment().getProperty("hello")).isEqualTo("world");
 	}
 
 	@Test
