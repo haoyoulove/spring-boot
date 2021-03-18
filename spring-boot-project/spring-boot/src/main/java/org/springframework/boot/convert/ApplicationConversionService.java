@@ -36,7 +36,7 @@ import org.springframework.util.StringValueResolver;
 
 /**
  * A specialization of {@link FormattingConversionService} configured by default with
-  converters and formatters appropriate for most Spring Boot applications.
+ * converters and formatters appropriate for most Spring Boot applications.
  * <p>
  * Designed for direct instantiation but also exposes the static
  * {@link #addApplicationConverters} and
@@ -63,7 +63,7 @@ public class ApplicationConversionService extends FormattingConversionService {
 
 	/**
 	 * Return a shared default application {@code ConversionService} instance, lazily
-	 building it once needed.
+	 * building it once needed.
 	 * <p>
 	 * Note: This method actually returns an {@link ApplicationConversionService}
 	 * instance. However, the {@code ConversionService} signature has been preserved for

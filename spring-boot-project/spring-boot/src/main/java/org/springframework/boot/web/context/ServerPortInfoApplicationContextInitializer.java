@@ -49,9 +49,10 @@ import org.springframework.util.StringUtils;
  * @author Phillip Webb
  * @since 2.0.0
  *
- * org.springframework.boot.web.context.ServerPortInfoApplicationContextInitializer ，
- * 实现 ApplicationContextInitializer、ApplicationListener 接口，监听 EmbeddedServletContainerInitializedEvent 类型的事件，
- * 然后将内嵌的 Web 服务器使用的端口给设置到 ApplicationContext 中。
+ * org.springframework.boot.web.context.ServerPortInfoApplicationContextInitializer ， 实现
+ * ApplicationContextInitializer、ApplicationListener 接口，监听
+ * EmbeddedServletContainerInitializedEvent 类型的事件， 然后将内嵌的 Web 服务器使用的端口给设置到
+ * ApplicationContext 中。
  */
 public class ServerPortInfoApplicationContextInitializer implements
 		ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationListener<WebServerInitializedEvent> {

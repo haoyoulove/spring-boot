@@ -33,8 +33,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Dave Syer
  * @author Andy Wilkinson
- * @since 1.0.0
- * org.springframework.boot.context.ContextIdApplicationContextInitializer ，
+ * @since 1.0.0 org.springframework.boot.context.ContextIdApplicationContextInitializer ，
  * 实现 ApplicationContextInitializer、Ordered 接口，负责生成 Spring 容器的编号。
  */
 public class ContextIdApplicationContextInitializer

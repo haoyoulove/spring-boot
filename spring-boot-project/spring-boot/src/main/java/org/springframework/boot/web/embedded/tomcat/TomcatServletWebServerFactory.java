@@ -353,7 +353,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 	protected void configureContext(Context context, ServletContextInitializer[] initializers) {
 		// <1> 处，创建了 TomcatStarter 对象。
 		TomcatStarter starter = new TomcatStarter(initializers);
-		// 通过 context instanceof TomcatEmbeddedContext 判断使用的是内嵌的 Tomcat ，所以将 TomcatStarter 作为 Initializer
+		// 通过 context instanceof TomcatEmbeddedContext 判断使用的是内嵌的 Tomcat ，所以将 TomcatStarter
+		// 作为 Initializer
 		if (context instanceof TomcatEmbeddedContext) {
 			TomcatEmbeddedContext embeddedContext = (TomcatEmbeddedContext) context;
 			embeddedContext.setStarter(starter);

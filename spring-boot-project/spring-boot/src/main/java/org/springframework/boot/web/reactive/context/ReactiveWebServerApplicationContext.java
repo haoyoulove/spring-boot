@@ -45,6 +45,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 	 * ServerManager 对象
 	 */
 	private volatile ServerManager serverManager;
+
 	/**
 	 * 通过 {@link #setServerNamespace(String)} 注入。
 	 *
@@ -99,10 +100,13 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 		// 如果不存在，则进行初始化
 		if (serverManager == null) {
 			String webServerFactoryBeanName = getWebServerFactoryBeanName();
-			// org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory 对象。
+			// org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory
+			// 对象。
 			/**
-			 * 在我们引入 spring-boot-starter-webflux 依赖时，org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryConfiguration
-			 * 在自动配置时，会配置出 NettyReactiveWebServerFactory Bean 对象。因此，此时会获得 NettyReactiveWebServerFactory 对象。
+			 * 在我们引入 spring-boot-starter-webflux
+			 * 依赖时，org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryConfiguration
+			 * 在自动配置时，会配置出 NettyReactiveWebServerFactory Bean 对象。因此，此时会获得
+			 * NettyReactiveWebServerFactory 对象。
 			 */
 			ReactiveWebServerFactory webServerFactory = getWebServerFactory(webServerFactoryBeanName);
 			boolean lazyInit = getBeanFactory().getBeanDefinition(webServerFactoryBeanName).isLazyInit();
@@ -160,15 +164,11 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 		// <1> 获得 HttpHandler
 		// <2> 启动 WebServer
 		/**
-		 * this::getHttpHandler 等同于
-		 new Supplier<HttpHandler>() {
-		@Override
-		public HttpHandler get() {
-		return ReactiveWebServerApplicationContext.this.getHttpHandler();
-		}
-		}
-
-		 // () -> getHttpHandler()
+		 * this::getHttpHandler 等同于 new Supplier<HttpHandler>() {
+		 * @Override public HttpHandler get() { return
+		 * ReactiveWebServerApplicationContext.this.getHttpHandler(); } }
+		 *
+		 * // () -> getHttpHandler()
 		 */
 		ServerManager.start(serverManager, this::getHttpHandler);
 		return ServerManager.getWebServer(serverManager);
@@ -179,7 +179,9 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 	 * server. By default this method searches for a suitable bean in the context itself.
 	 * @return a {@link HttpHandler} (never {@code null}
 	 *
-	 * 该 HttpHandler Bean 对象，是在 org.springframework.boot.autoconfigure.web.reactive.HttpHandlerAutoConfiguration 配置类上，被初始化出来。
+	 * 该 HttpHandler Bean 对象，是在
+	 * org.springframework.boot.autoconfigure.web.reactive.HttpHandlerAutoConfiguration
+	 * 配置类上，被初始化出来。
 	 *
 	 *
 	 */
@@ -258,7 +260,8 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 	}
 
 	/**
-	 * Internal class used to manage the server and the {@link HttpHandler}, taking care not to initialize the handler too early.
+	 * Internal class used to manage the server and the {@link HttpHandler}, taking care
+	 * not to initialize the handler too early.
 	 */
 	static final class ServerManager implements HttpHandler {
 
@@ -268,19 +271,22 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 		private final WebServer server;
 
 		private final boolean lazyInit;
+
 		/**
-		 * HttpHandler 对象，具体在 {@link #handle(ServerHttpRequest, ServerHttpResponse)} 方法中使用。
+		 * HttpHandler 对象，具体在 {@link #handle(ServerHttpRequest, ServerHttpResponse)}
+		 * 方法中使用。
 		 */
 		private volatile HttpHandler handler;
 
 		private ServerManager(ReactiveWebServerFactory factory, boolean lazyInit) {
 			this.handler = this::handleUninitialized;// <1> 同下面
-//          this.handler = new HttpHandler() {
-//                @Override
-//                public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-//                    return handleUninitialized(request, response);
-//                }
-//            };
+			// this.handler = new HttpHandler() {
+			// @Override
+			// public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse
+			// response) {
+			// return handleUninitialized(request, response);
+			// }
+			// };
 
 			// <2> 创建 WebServer 对象。其中，方法参数 handler 传递是 this 自己，因为后面的请求处理的
 			// #handle(ServerHttpRequest request, ServerHttpResponse) 方法，需要调用自己哟。
@@ -291,7 +297,6 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 		private Mono<Void> handleUninitialized(ServerHttpRequest request, ServerHttpResponse response) {
 			throw new IllegalStateException("The HttpHandler has not yet been initialized");
 		}
-
 
 		// 委托给 handler 属性，对应的方法，处理请求。
 		@Override
@@ -307,6 +312,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 		static ServerManager get(ReactiveWebServerFactory factory, boolean lazyInit) {
 			return new ServerManager(factory, lazyInit);
 		}
+
 		// 获得 manager 的 WebServer 对象
 		static WebServer getWebServer(ServerManager manager) {
 			return (manager != null) ? manager.server : null;
@@ -321,8 +327,6 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 				manager.server.start();
 			}
 		}
-
-
 
 		static void stop(ServerManager manager) {
 			if (manager != null && manager.server != null) {

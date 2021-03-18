@@ -39,8 +39,9 @@ import org.springframework.util.StringUtils;
  * @author Phillip Webb
  * @since 1.0.0
  *
- * org.springframework.boot.context.config.DelegatingApplicationContextInitializer ，实现 ApplicationContextInitializer、Ordered 接口，
- * 根据环境变量配置的 context.initializer.classes 配置的 ApplicationContextInitializer 类们，交给它们进行初始化。
+ * org.springframework.boot.context.config.DelegatingApplicationContextInitializer ，实现
+ * ApplicationContextInitializer、Ordered 接口， 根据环境变量配置的 context.initializer.classes 配置的
+ * ApplicationContextInitializer 类们，交给它们进行初始化。
  */
 public class DelegatingApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
@@ -50,6 +51,7 @@ public class DelegatingApplicationContextInitializer
 	 * 环境变量配置的属性
 	 */
 	private static final String PROPERTY_NAME = "context.initializer.classes";
+
 	/**
 	 * 默认优先级
 	 */

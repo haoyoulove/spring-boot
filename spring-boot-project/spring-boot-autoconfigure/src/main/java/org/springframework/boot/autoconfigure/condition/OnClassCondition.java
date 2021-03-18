@@ -46,8 +46,10 @@ class OnClassCondition extends FilteringSpringBootCondition {
 	@Override
 	protected final ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
 			AutoConfigurationMetadata autoConfigurationMetadata) {
-		// Split the work and perform half in a background thread if more than one processor is available.
-		// Using a single additional thread seems to offer the best performance. More threads make things worse.
+		// Split the work and perform half in a background thread if more than one
+		// processor is available.
+		// Using a single additional thread seems to offer the best performance. More
+		// threads make things worse.
 		// <1> 在后台线程中将工作一分为二。原因是：
 		// * 使用单一附加线程，似乎提供了最好的性能。
 		// * 多个线程，使事情变得更糟
@@ -99,7 +101,7 @@ class OnClassCondition extends FilteringSpringBootCondition {
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		// <1> 声明变量
 		ClassLoader classLoader = context.getClassLoader();
-		ConditionMessage matchMessage = ConditionMessage.empty();  // 匹配的信息
+		ConditionMessage matchMessage = ConditionMessage.empty(); // 匹配的信息
 		// <2> 获得 `@ConditionalOnClass` 注解的属性
 		List<String> onClasses = getCandidates(metadata, ConditionalOnClass.class);
 		if (onClasses != null) {
@@ -165,11 +167,11 @@ class OnClassCondition extends FilteringSpringBootCondition {
 		 * 新起的线程
 		 */
 		private final Thread thread;
+
 		/**
 		 * 条件匹配结果
 		 */
 		private volatile ConditionOutcome[] outcomes;
-
 
 		private ThreadedOutcomesResolver(OutcomesResolver outcomesResolver) {
 			// <1.1> 创建线程
@@ -199,10 +201,12 @@ class OnClassCondition extends FilteringSpringBootCondition {
 		 * 所有的配置类的数组
 		 */
 		private final String[] autoConfigurationClasses;
+
 		/**
 		 * 匹配的 {@link #autoConfigurationClasses} 开始位置
 		 */
 		private final int start;
+
 		/**
 		 * 匹配的 {@link #autoConfigurationClasses} 结束位置
 		 */

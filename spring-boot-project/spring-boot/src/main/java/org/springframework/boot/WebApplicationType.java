@@ -28,23 +28,21 @@ import org.springframework.util.ClassUtils;
 public enum WebApplicationType {
 
 	/**
-	 * The application should not run as a web application and should not start an embedded web server.
-	 *  非内嵌的 Web 应用
+	 * The application should not run as a web application and should not start an
+	 * embedded web server. 非内嵌的 Web 应用
 	 */
 	NONE,
 
 	/**
 	 * The application should run as a servlet-based web application and should start an
-	  embedded servlet web server.
-	 内嵌的 Servlet Web 应用。例如说，Spring MVC 。
-
+	 * embedded servlet web server. 内嵌的 Servlet Web 应用。例如说，Spring MVC 。
+	 *
 	 */
 	SERVLET,
 
 	/**
 	 * The application should run as a reactive web application and should start an
-	  embedded reactive web server.
-	 内嵌的 Reactive Web 应用。例如说，Spring Webflux 。
+	 * embedded reactive web server. 内嵌的 Reactive Web 应用。例如说，Spring Webflux 。
 	 */
 	REACTIVE;
 

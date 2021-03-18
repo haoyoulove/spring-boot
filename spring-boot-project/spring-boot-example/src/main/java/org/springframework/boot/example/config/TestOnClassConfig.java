@@ -11,14 +11,14 @@ import org.springframework.context.annotation.Configuration;
  * @author yangjing
  */
 @Configuration
-@ConditionalOnClass({ClassService.class})
+@ConditionalOnClass({ ClassService.class })
 public class TestOnClassConfig {
 
-
 	@Bean
-	public HelloService helloService(){
+	public HelloService helloService() {
 		HelloService helloService = new HelloService();
 		System.out.println("ConditionalOnClass测试HelloServiceHelloServiceHelloService");
 		return helloService;
 	}
+
 }

@@ -72,7 +72,8 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	/**
 	 * {@link BeanDefinitionRegistryPostProcessor} to report warnings.
-	 * ConfigurationWarningsApplicationContextInitializer 的内部静态类，实现 PriorityOrdered、BeanDefinitionRegistryPostProcessor 接口
+	 * ConfigurationWarningsApplicationContextInitializer 的内部静态类，实现
+	 * PriorityOrdered、BeanDefinitionRegistryPostProcessor 接口
 	 */
 	protected static final class ConfigurationWarningsPostProcessor
 			implements PriorityOrdered, BeanDefinitionRegistryPostProcessor {

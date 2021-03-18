@@ -88,8 +88,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @since 2.0.0
  * @see AnnotationConfigServletWebServerApplicationContext
  * @see XmlServletWebServerApplicationContext
- * @see ServletWebServerFactory
- * 6 层迭代加载
+ * @see ServletWebServerFactory 6 层迭代加载
  */
 public class ServletWebServerApplicationContext extends GenericWebApplicationContext
 		implements ConfigurableWebServerApplicationContext {
@@ -105,7 +104,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	public static final String DISPATCHER_SERVLET_NAME = "dispatcherServlet";
 
 	/**
-	 * Spring  WebServer 对象
+	 * Spring WebServer 对象
 	 */
 	private volatile WebServer webServer;
 
@@ -113,6 +112,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * Servlet ServletConfig 对象
 	 */
 	private ServletConfig servletConfig;
+
 	/**
 	 * 通过 {@link #setServerNamespace(String)} 注入。
 	 *
@@ -141,7 +141,8 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
-		// <1.1> 注册 WebApplicationContextServletContextAwareProcessor (主要是处理实现 ServletContextAware 接口的 Bean)
+		// <1.1> 注册 WebApplicationContextServletContextAwareProcessor (主要是处理实现
+		// ServletContextAware 接口的 Bean)
 		// 这样，就可以从 webApplicationContext 中，获得 ServletContext 和 ServletConfig 属性。
 		beanFactory.addBeanPostProcessor(new WebApplicationContextServletContextAwareProcessor(this));
 		// <1.2> 忽略 ServletContextAware 接口。
@@ -163,14 +164,14 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		}
 	}
 
-	//第一层：onRefresh()
+	// 第一层：onRefresh()
 	@Override
 	protected void onRefresh() {
 		// <1> 调用父方法
 		super.onRefresh();
 		try {
 			// 创建 WebServer
-			createWebServer();  //第二层的入口
+			createWebServer(); // 第二层的入口
 		}
 		catch (Throwable ex) {
 			throw new ApplicationContextException("Unable to start web server", ex);
@@ -205,9 +206,9 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 			ServletWebServerFactory factory = getWebServerFactory();
 			// <1.2> 获得 ServletContextInitializer 对象
 			// <1.3> 创建（获得） WebServer 对象
-			this.webServer = factory.getWebServer(getSelfInitializer());  // 第三层的入口
+			this.webServer = factory.getWebServer(getSelfInitializer()); // 第三层的入口
 		}
-		// TODO 1002  猜测回调之getSelfInitializer()之后走下面逻辑
+		// TODO 1002 猜测回调之getSelfInitializer()之后走下面逻辑
 		else if (servletContext != null) {
 			try {
 				getSelfInitializer().onStartup(servletContext);
@@ -226,10 +227,12 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * the context itself.
 	 * @return a {@link ServletWebServerFactory} (never {@code null})
 	 *
-	 * 默认情况下，此处返回的会是 org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory 对象。
-	 * 在我们引入 spring-boot-starter-web 依赖时，默认会引入 spring-boot-starter-tomcat  依赖。
-	 * 此时，org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration 在自动配置时，
-	 * 会配置出 TomcatServletWebServerFactory Bean 对象。因此，此时会获得 TomcatServletWebServerFactory 对象。
+	 * 默认情况下，此处返回的会是
+	 * org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory 对象。
+	 * 在我们引入 spring-boot-starter-web 依赖时，默认会引入 spring-boot-starter-tomcat 依赖。
+	 * 此时，org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration
+	 * 在自动配置时， 会配置出 TomcatServletWebServerFactory Bean 对象。因此，此时会获得
+	 * TomcatServletWebServerFactory 对象。
 	 */
 	protected ServletWebServerFactory getWebServerFactory() {
 		// Use bean names so that we don't consider the hierarchy
@@ -253,21 +256,20 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * Returns the {@link ServletContextInitializer} that will be used to complete the
 	 * setup of this {@link WebApplicationContext}.
 	 * @return the self initializer
-	 * @see #prepareWebApplicationContext(ServletContext)
-	 * 第三层：getSelfInitializer()
+	 * @see #prepareWebApplicationContext(ServletContext) 第三层：getSelfInitializer()
 	 *
 	 * 回调式设计
 	 */
 	private org.springframework.boot.web.servlet.ServletContextInitializer getSelfInitializer() {
 		return this::selfInitialize;// 和下面等价
-//        return new ServletContextInitializer() {
-//
-//            @Override
-//            public void onStartup(ServletContext servletContext) throws ServletException {
-//                selfInitialize(servletContext);
-//            }
-//
-//        };
+		// return new ServletContextInitializer() {
+		//
+		// @Override
+		// public void onStartup(ServletContext servletContext) throws ServletException {
+		// selfInitialize(servletContext);
+		// }
+		//
+		// };
 	}
 
 	private void selfInitialize(ServletContext servletContext) throws ServletException {
@@ -275,11 +277,12 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		prepareWebApplicationContext(servletContext);
 		// <2> 注册 ServletContextScope
 		registerApplicationScope(servletContext);
-		// <3> 注册 web-specific environment beans ("contextParameters", "contextAttributes")
+		// <3> 注册 web-specific environment beans ("contextParameters",
+		// "contextAttributes")
 		WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
 
 		// <4> 获得所有 ServletContextInitializer ，并逐个进行启动
-		// 第四层的入口 getServletContextInitializerBeans()  重要
+		// 第四层的入口 getServletContextInitializerBeans() 重要
 		for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
 			beans.onStartup(servletContext);
 		}
@@ -308,10 +311,10 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * {@link EventListener} beans.
 	 * @return the servlet initializer beans
 	 *
-	 *  第四层：getServletContextInitializerBeans()
+	 * 第四层：getServletContextInitializerBeans()
 	 */
 	protected Collection<ServletContextInitializer> getServletContextInitializerBeans() {
-		return new ServletContextInitializerBeans(getBeanFactory()); //第五层的入口
+		return new ServletContextInitializerBeans(getBeanFactory()); // 第五层的入口
 	}
 
 	/**

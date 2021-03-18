@@ -13,4 +13,5 @@ public class TestCondition implements Condition {
 	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		return true;
 	}
+
 }

@@ -44,7 +44,8 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 	private ClassLoader beanClassLoader;
 
 	// 来自 AutoConfigurationImportFilter 接口
-	// 配置过滤  org.springframework.boot.autoconfigure.AutoConfigurationImportSelector.filter 具体核心实现
+	// 配置过滤 org.springframework.boot.autoconfigure.AutoConfigurationImportSelector.filter
+	// 具体核心实现
 	@Override
 	public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
 		// <1> 获得 ConditionEvaluationReport 对象
@@ -92,7 +93,7 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 		this.beanClassLoader = classLoader;
 	}
 
-	//通过使用 ClassNameFilter 类，过滤出符合条件的类名的数组。
+	// 通过使用 ClassNameFilter 类，过滤出符合条件的类名的数组。
 	protected final List<String> filter(Collection<String> classNames, ClassNameFilter classNameFilter,
 			ClassLoader classLoader) {
 		// 如果为空，则返回空结果
@@ -116,8 +117,7 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 	 * @param className the class name to resolve
 	 * @param classLoader the class loader to use
 	 * @return a resolved class
-	 * @throws ClassNotFoundException if the class cannot be found
-	 *   // 加载指定类
+	 * @throws ClassNotFoundException if the class cannot be found // 加载指定类
 	 */
 	protected static Class<?> resolve(String className, ClassLoader classLoader) throws ClassNotFoundException {
 		if (classLoader != null) {

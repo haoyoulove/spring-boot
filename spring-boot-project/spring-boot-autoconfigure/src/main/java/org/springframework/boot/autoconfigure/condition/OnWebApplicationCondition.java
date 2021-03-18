@@ -84,7 +84,8 @@ class OnWebApplicationCondition extends FilteringSpringBootCondition {
 				return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
 			}
 		}
-		// <2.3> 如果 SERVLET_WEB_APPLICATION_CLASS 和 REACTIVE_WEB_APPLICATION_CLASS 都不存在，返回不匹配
+		// <2.3> 如果 SERVLET_WEB_APPLICATION_CLASS 和 REACTIVE_WEB_APPLICATION_CLASS
+		// 都不存在，返回不匹配
 		if (!ClassNameFilter.isPresent(SERVLET_WEB_APPLICATION_CLASS, getBeanClassLoader())
 				&& !ClassUtils.isPresent(REACTIVE_WEB_APPLICATION_CLASS, getBeanClassLoader())) {
 			return ConditionOutcome.noMatch(message.didNotFind("reactive or servlet web application classes").atAll());
@@ -116,11 +117,11 @@ class OnWebApplicationCondition extends FilteringSpringBootCondition {
 		// <1> 获得要求的 Web 类型
 		switch (deduceType(metadata)) {
 		case SERVLET:
-			return isServletWebApplication(context);  // <2.1> 判断是否 Servlet Web 环境
+			return isServletWebApplication(context); // <2.1> 判断是否 Servlet Web 环境
 		case REACTIVE:
 			return isReactiveWebApplication(context); // <2.2> 判断是否 Reactive Web 环境
 		default:
-			return isAnyWebApplication(context, required);  // <2.3> 判断是否为任意 Web 环境
+			return isAnyWebApplication(context, required); // <2.3> 判断是否为任意 Web 环境
 		}
 	}
 

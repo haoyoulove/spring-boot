@@ -5,5 +5,4 @@ package org.springframework.boot.example.Service;
  */
 public class ClassService {
 
-
 }

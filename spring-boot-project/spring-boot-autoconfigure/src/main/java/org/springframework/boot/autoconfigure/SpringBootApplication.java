@@ -45,22 +45,19 @@ import org.springframework.data.repository.Repository;
  * @author Andy Wilkinson
  * @since 1.2.0
  *
- * 所谓的元注解：其实就是可以注解到别的注解上的注解。
- * 组合注解   被注解的注解
- * 组合注解同时具备元注解的功能
- * 组合注解 简化了注解配置。也提供了很好的扩展性。
+ * 所谓的元注解：其实就是可以注解到别的注解上的注解。 组合注解 被注解的注解 组合注解同时具备元注解的功能 组合注解 简化了注解配置。也提供了很好的扩展性。
  *
- *  **也就是同时拥有当前这些注解的功能**
+ * **也就是同时拥有当前这些注解的功能**
  *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Inherited  //可是使得该自定义注解@SpringBootApplication 被子类继承
-@SpringBootConfiguration  // 和@Configuration功能类似 可以将类中声明的一个或者多个@bean注解标记的方法的实例纳入Spring容器
+@Inherited // 可是使得该自定义注解@SpringBootApplication 被子类继承
+@SpringBootConfiguration // 和@Configuration功能类似 可以将类中声明的一个或者多个@bean注解标记的方法的实例纳入Spring容器
 @EnableAutoConfiguration // 用于开启自动配置功能
 @ComponentScan(excludeFilters = { @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
-		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })// 扫描指定路径下的组件,这里是抛开这些类
+		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) }) // 扫描指定路径下的组件,这里是抛开这些类
 public @interface SpringBootApplication {
 
 	/**
@@ -72,7 +69,7 @@ public @interface SpringBootApplication {
 
 	/**
 	 * Exclude specific auto-configuration class names such that they will never be
-	 applied.
+	 * applied.
 	 * @return the class names to exclude
 	 * @since 1.3.0
 	 */
@@ -81,8 +78,8 @@ public @interface SpringBootApplication {
 
 	/**
 	 * Base packages to scan for annotated components. Use {@link #scanBasePackageClasses}
-	 for a type-safe alternative to String-based package names.
-	 * for a type-safe alternative to String-based package names.
+	 * for a type-safe alternative to String-based package names. for a type-safe
+	 * alternative to String-based package names.
 	 * <p>
 	 * <strong>Note:</strong> this setting is an alias for
 	 * {@link ComponentScan @ComponentScan} only. It has no effect on {@code @Entity}

@@ -227,7 +227,7 @@ public class Binder {
 
 	/**
 	 * Bind the specified target {@link Bindable} using this binder's
-	  {@link ConfigurationPropertySource property sources}.
+	 * {@link ConfigurationPropertySource property sources}.
 	 * @param name the configuration property name to bind
 	 * @param target the target bindable
 	 * @param handler the bind handler (may be {@code null})

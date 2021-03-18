@@ -115,18 +115,22 @@ class OnPropertyCondition extends SpringBootCondition {
 	}
 
 	private static class Spec {
+
 		/**
 		 * 属性前缀
 		 */
 		private final String prefix;
+
 		/**
 		 * 是否有指定值
 		 */
 		private final String havingValue;
+
 		/**
 		 * 属性名
 		 */
 		private final String[] names;
+
 		/**
 		 * 如果属性不存在，是否认为是匹配的。
 		 *
@@ -144,6 +148,7 @@ class OnPropertyCondition extends SpringBootCondition {
 			this.names = getNames(annotationAttributes);
 			this.matchIfMissing = annotationAttributes.getBoolean("matchIfMissing");
 		}
+
 		// 从 value 或者 name 属性种，获得值
 		private String[] getNames(Map<String, Object> annotationAttributes) {
 			String[] value = (String[]) annotationAttributes.get("value");

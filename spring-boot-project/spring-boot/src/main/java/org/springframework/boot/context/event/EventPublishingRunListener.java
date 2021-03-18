@@ -49,10 +49,12 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 	 * Spring 应用
 	 */
 	private final SpringApplication application;
+
 	/**
 	 * 参数集合
 	 */
 	private final String[] args;
+
 	/**
 	 * 事件广播器
 	 */

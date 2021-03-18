@@ -80,7 +80,9 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 @Documented
 @Inherited
 @AutoConfigurationPackage // 主要功能自动配置包，它会获取主程序类所在的包路径，并将包路径（包括子包）下的所有组件注册到 Spring IOC 容器中
-@Import(AutoConfigurationImportSelector.class)  // 可用于资源的导入 AutoConfigurationImportSelector: 导入自动配置相关的资源
+@Import(AutoConfigurationImportSelector.class) // 可用于资源的导入
+												// AutoConfigurationImportSelector:
+												// 导入自动配置相关的资源
 public @interface EnableAutoConfiguration {
 
 	/**
@@ -97,7 +99,7 @@ public @interface EnableAutoConfiguration {
 
 	/**
 	 * Exclude specific auto-configuration class names such that they will never be
-	 applied.
+	 * applied.
 	 * @return the class names to exclude
 	 * @since 1.3.0
 	 */

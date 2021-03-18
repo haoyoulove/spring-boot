@@ -12,14 +12,14 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @author yangjing
  */
 @Configuration
-//@ConditionalOnProperty(prefix="mf",name = "assert", havingValue = "true")
+// @ConditionalOnProperty(prefix="mf",name = "assert", havingValue = "true")
 public class TestPropertyConfig {
 
+	// @Bean
+	// public HelloService helloService(){
+	// HelloService helloService = new HelloService();
+	// System.out.println("测试");
+	// return helloService;
+	// }
 
-//	@Bean
-//	public HelloService helloService(){
-//		HelloService helloService = new HelloService();
-//		System.out.println("测试");
-//		return helloService;
-//	}
 }

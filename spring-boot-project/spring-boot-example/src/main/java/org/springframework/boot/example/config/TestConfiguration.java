@@ -9,12 +9,13 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-//@Conditional(TestCondition.class)
+// @Conditional(TestCondition.class)
 public class TestConfiguration {
 
 	@Bean
-//	@Conditional(TestCondition.class)
+	// @Conditional(TestCondition.class)
 	public Object testObject() {
 		return new Object();
 	}
+
 }

@@ -162,21 +162,21 @@ public class SpringApplication {
 
 	/**
 	 * The class name of application context that will be used by default for non-web
-	 environments.
+	 * environments.
 	 */
 	public static final String DEFAULT_CONTEXT_CLASS = "org.springframework.context."
 			+ "annotation.AnnotationConfigApplicationContext";
 
 	/**
 	 * The class name of application context that will be used by default for web
-	environments.
+	 * environments.
 	 */
 	public static final String DEFAULT_SERVLET_WEB_CONTEXT_CLASS = "org.springframework.boot."
 			+ "web.servlet.context.AnnotationConfigServletWebServerApplicationContext";
 
 	/**
 	 * The class name of application context that will be used by default for reactive web
-	  environments.
+	 * environments.
 	 */
 	public static final String DEFAULT_REACTIVE_WEB_CONTEXT_CLASS = "org.springframework."
 			+ "boot.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext";
@@ -196,7 +196,7 @@ public class SpringApplication {
 	private static final Log logger = LogFactory.getLog(SpringApplication.class);
 
 	/**
-	 *  主要的 Java Config 类的数组
+	 * 主要的 Java Config 类的数组
 	 */
 	private Set<Class<?>> primarySources;
 
@@ -227,7 +227,7 @@ public class SpringApplication {
 	private Class<? extends ConfigurableApplicationContext> applicationContextClass;
 
 	/**
-	 *  Web 应用类型
+	 * Web 应用类型
 	 */
 	private WebApplicationType webApplicationType;
 
@@ -239,7 +239,7 @@ public class SpringApplication {
 	private boolean registerShutdownHook = true;
 
 	/**
-	 *  ApplicationContextInitializer 数组
+	 * ApplicationContextInitializer 数组
 	 */
 	private List<ApplicationContextInitializer<?>> initializers;
 
@@ -248,7 +248,7 @@ public class SpringApplication {
 	private Map<String, Object> defaultProperties;
 
 	/**
-	 *  附加的 profiles 的数组
+	 * 附加的 profiles 的数组
 	 */
 	private Set<String> additionalProfiles = new HashSet<>();
 
@@ -260,8 +260,8 @@ public class SpringApplication {
 
 	/**
 	 * Create a new {@link SpringApplication} instance. The application context will load
-	 beans from the specified primary sources (see {@link SpringApplication class-level}
-	 documentation for details. The instance can be customized before calling
+	 * beans from the specified primary sources (see {@link SpringApplication class-level}
+	 * documentation for details. The instance can be customized before calling
 	 * {@link #run(String...)}.
 	 * @param primarySources the primary bean sources
 	 * @see #run(Class, String[])
@@ -278,7 +278,7 @@ public class SpringApplication {
 	 * documentation for details. The instance can be customized before calling
 	 * {@link #run(String...)}.
 	 * @param resourceLoader the resource loader to use
-	 * @param primarySources the primary bean sources  启动类的实例
+	 * @param primarySources the primary bean sources 启动类的实例
 	 * @see #run(Class, String[])
 	 * @see #setSources(Set)
 	 */
@@ -319,7 +319,7 @@ public class SpringApplication {
 	 *
 	 */
 	public ConfigurableApplicationContext run(String... args) {
-		//创建 StopWatch 对象，并启动。StopWatch 主要用于简单统计 run 启动过程的时长。
+		// 创建 StopWatch 对象，并启动。StopWatch 主要用于简单统计 run 启动过程的时长。
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		ConfigurableApplicationContext context = null;
@@ -329,7 +329,7 @@ public class SpringApplication {
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		listeners.starting();
 		try {
-			// 创建  ApplicationArguments 对象
+			// 创建 ApplicationArguments 对象
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
 			// 加载属性配置。执行完成后，所有的 environment 的属性都会加载进来，包括 application.properties 和外部的属性配置。
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, applicationArguments);
@@ -338,10 +338,10 @@ public class SpringApplication {
 			Banner printedBanner = printBanner(environment);
 			// 创建 Spring 容器。
 			context = createApplicationContext();
-			//  异常报告器
+			// 异常报告器
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
 					new Class[] { ConfigurableApplicationContext.class }, context);
-			//  主要是调用所有初始化类的 initialize 方法
+			// 主要是调用所有初始化类的 initialize 方法
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
 			// 初始化 Spring 容器。
 			refreshContext(context);
@@ -383,17 +383,18 @@ public class SpringApplication {
 		ConfigurableEnvironment environment = getOrCreateEnvironment();
 		configureEnvironment(environment, applicationArguments.getSourceArgs());
 		ConfigurationPropertySources.attach(environment);
-		//  通知 SpringApplicationRunListener 的数组，环境变量已经准备完成。
+		// 通知 SpringApplicationRunListener 的数组，环境变量已经准备完成。
 		listeners.environmentPrepared(environment);
 		// 绑定 environment 到 SpringApplication 上
 		bindToSpringApplication(environment);
 
-		//  如果非自定义 environment ，则根据条件转换
+		// 如果非自定义 environment ，则根据条件转换
 		if (!this.isCustomEnvironment) {
 			environment = new EnvironmentConverter(getClassLoader()).convertEnvironmentIfNecessary(environment,
 					deduceEnvironmentClass());
 		}
-		// 如果有 attach 到 environment 上的 MutablePropertySources ，则添加到 environment 的 PropertySource 中。
+		// 如果有 attach 到 environment 上的 MutablePropertySources ，则添加到 environment 的
+		// PropertySource 中。
 		ConfigurationPropertySources.attach(environment);
 		return environment;
 	}
@@ -484,14 +485,13 @@ public class SpringApplication {
 		Set<String> names = new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
 		// 创建对象们
 		List<T> instances = createSpringFactoriesInstances(type, parameterTypes, classLoader, args, names);
-		//  排序对象们
+		// 排序对象们
 		AnnotationAwareOrderComparator.sort(instances);
 		return instances;
 	}
 
 	/**
 	 * 创建对象的数组
-	 *
 	 * @param type 父类
 	 * @param parameterTypes 构造方法的参数类型
 	 * @param classLoader 类加载器
@@ -503,7 +503,7 @@ public class SpringApplication {
 	@SuppressWarnings("unchecked")
 	private <T> List<T> createSpringFactoriesInstances(Class<T> type, Class<?>[] parameterTypes,
 			ClassLoader classLoader, Object[] args, Set<String> names) {
-		List<T> instances = new ArrayList<>(names.size());  // 数组大小，细节~
+		List<T> instances = new ArrayList<>(names.size()); // 数组大小，细节~
 		for (String name : names) {
 			try {
 				// 获得 name 对应的类
@@ -546,18 +546,18 @@ public class SpringApplication {
 	 * @param environment this application's environment
 	 * @param args arguments passed to the {@code run} method
 	 * @see #configureProfiles(ConfigurableEnvironment, String[])
-	 * @see #configurePropertySources(ConfigurableEnvironment, String[])
-	 * 是否添加共享的 ConversionService
+	 * @see #configurePropertySources(ConfigurableEnvironment, String[]) 是否添加共享的
+	 * ConversionService
 	 */
 	protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
-		//  设置 environment 的 conversionService 属性
+		// 设置 environment 的 conversionService 属性
 		if (this.addConversionService) {
 			ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 			environment.setConversionService((ConfigurableConversionService) conversionService);
 		}
 		// 增加 environment 的 PropertySource 属性源
 		configurePropertySources(environment, args);
-		//  配置 environment 的 activeProfiles 属性
+		// 配置 environment 的 activeProfiles 属性
 		configureProfiles(environment, args);
 	}
 
@@ -577,7 +577,7 @@ public class SpringApplication {
 		// 来自启动参数的
 		if (this.addCommandLineProperties && args.length > 0) {
 			String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
-			if (sources.contains(name)) {  // 已存在，就进行替换
+			if (sources.contains(name)) { // 已存在，就进行替换
 				PropertySource<?> source = sources.get(name);
 				CompositePropertySource composite = new CompositePropertySource(name);
 				composite.addPropertySource(
@@ -593,8 +593,8 @@ public class SpringApplication {
 
 	/**
 	 * Configure which profiles are active (or active by default) for this application
-	 environment. Additional profiles may be activated during configuration file
-	 processing via the {@code spring.profiles.active} property.
+	 * environment. Additional profiles may be activated during configuration file
+	 * processing via the {@code spring.profiles.active} property.
 	 * @param environment this application's environment
 	 * @param args arguments passed to the {@code run} method
 	 * @see #configureEnvironment(ConfigurableEnvironment, String[])
@@ -672,7 +672,7 @@ public class SpringApplication {
 
 	/**
 	 * Apply any relevant post processing the {@link ApplicationContext}. Subclasses can
-	 apply additional processing as required.
+	 * apply additional processing as required.
 	 * @param context the application context
 	 */
 	protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
@@ -695,7 +695,7 @@ public class SpringApplication {
 
 	/**
 	 * Apply any {@link ApplicationContextInitializer}s to the context before it is
-	 refreshed.
+	 * refreshed.
 	 * @param context the configured ApplicationContext (not refreshed yet)
 	 * @see ConfigurableApplicationContext#refresh()
 	 */
