@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ import org.springframework.util.Assert;
  * Configuration properties to configure {@link SpringLiquibase}.
  *
  * @author Marcel Overdijk
+ * @author Eddú Meléndez
+ * @author Ferenc Gratzer
+ * @author Evgeniy Cheban
  * @since 1.1.0
  */
 @ConfigurationProperties(prefix = "spring.liquibase", ignoreUnknownFields = false)
@@ -37,6 +40,12 @@ public class LiquibaseProperties {
 	 * Change log configuration path.
 	 */
 	private String changeLog = "classpath:/db/changelog/db.changelog-master.yaml";
+
+	/**
+	 * Whether to clear all checksums in the current changelog, so they will be
+	 * recalculated upon the next update.
+	 */
+	private boolean clearChecksums;
 
 	/**
 	 * Comma-separated list of runtime contexts to use.
@@ -89,6 +98,11 @@ public class LiquibaseProperties {
 	private String password;
 
 	/**
+	 * Fully qualified name of the JDBC driver. Auto-detected based on the URL by default.
+	 */
+	private String driverClassName;
+
+	/**
 	 * JDBC URL of the database to migrate. If not set, the primary configured data source
 	 * is used.
 	 */
@@ -113,6 +127,13 @@ public class LiquibaseProperties {
 	 * Whether rollback should be tested before update is performed.
 	 */
 	private boolean testRollbackOnUpdate;
+
+	/**
+	 * Tag name to use when applying database changes. Can also be used with
+	 * "rollbackFile" to generate a rollback script for all existing changes associated
+	 * with that tag.
+	 */
+	private String tag;
 
 	public String getChangeLog() {
 		return this.changeLog;
@@ -179,6 +200,14 @@ public class LiquibaseProperties {
 		this.dropFirst = dropFirst;
 	}
 
+	public boolean isClearChecksums() {
+		return this.clearChecksums;
+	}
+
+	public void setClearChecksums(boolean clearChecksums) {
+		this.clearChecksums = clearChecksums;
+	}
+
 	public boolean isEnabled() {
 		return this.enabled;
 	}
@@ -201,6 +230,14 @@ public class LiquibaseProperties {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getDriverClassName() {
+		return this.driverClassName;
+	}
+
+	public void setDriverClassName(String driverClassName) {
+		this.driverClassName = driverClassName;
 	}
 
 	public String getUrl() {
@@ -241,6 +278,14 @@ public class LiquibaseProperties {
 
 	public void setTestRollbackOnUpdate(boolean testRollbackOnUpdate) {
 		this.testRollbackOnUpdate = testRollbackOnUpdate;
+	}
+
+	public String getTag() {
+		return this.tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 }

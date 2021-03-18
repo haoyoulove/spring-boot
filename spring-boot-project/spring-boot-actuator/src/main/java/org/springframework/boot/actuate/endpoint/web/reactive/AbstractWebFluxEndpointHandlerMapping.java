@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException
 import org.springframework.boot.actuate.endpoint.InvocationContext;
 import org.springframework.boot.actuate.endpoint.OperationType;
 import org.springframework.boot.actuate.endpoint.SecurityContext;
+import org.springframework.boot.actuate.endpoint.http.ApiVersion;
 import org.springframework.boot.actuate.endpoint.invoke.OperationInvoker;
 import org.springframework.boot.actuate.endpoint.web.EndpointMapping;
 import org.springframework.boot.actuate.endpoint.web.EndpointMediaTypes;
@@ -58,15 +59,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.HandlerMapping;
-import org.springframework.web.reactive.result.condition.ConsumesRequestCondition;
-import org.springframework.web.reactive.result.condition.PatternsRequestCondition;
-import org.springframework.web.reactive.result.condition.ProducesRequestCondition;
-import org.springframework.web.reactive.result.condition.RequestMethodsRequestCondition;
 import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.RequestMappingInfoHandlerMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * A custom {@link HandlerMapping} that makes web endpoints available over HTTP using
@@ -79,8 +75,6 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * @since 2.0.0
  */
 public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappingInfoHandlerMapping {
-
-	private static final PathPatternParser pathPatternParser = new PathPatternParser();
 
 	private final EndpointMapping endpointMapping;
 
@@ -164,24 +158,18 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 
 	private RequestMappingInfo createRequestMappingInfo(WebOperation operation) {
 		WebOperationRequestPredicate predicate = operation.getRequestPredicate();
-		PatternsRequestCondition patterns = new PatternsRequestCondition(
-				pathPatternParser.parse(this.endpointMapping.createSubPath(predicate.getPath())));
-		RequestMethodsRequestCondition methods = new RequestMethodsRequestCondition(
-				RequestMethod.valueOf(predicate.getHttpMethod().name()));
-		ConsumesRequestCondition consumes = new ConsumesRequestCondition(
-				StringUtils.toStringArray(predicate.getConsumes()));
-		ProducesRequestCondition produces = new ProducesRequestCondition(
-				StringUtils.toStringArray(predicate.getProduces()));
-		return new RequestMappingInfo(null, patterns, methods, null, null, consumes, produces, null);
+		String path = this.endpointMapping.createSubPath(predicate.getPath());
+		RequestMethod method = RequestMethod.valueOf(predicate.getHttpMethod().name());
+		String[] consumes = StringUtils.toStringArray(predicate.getConsumes());
+		String[] produces = StringUtils.toStringArray(predicate.getProduces());
+		return RequestMappingInfo.paths(path).methods(method).consumes(consumes).produces(produces).build();
 	}
 
 	private void registerLinksMapping() {
-		PatternsRequestCondition patterns = new PatternsRequestCondition(
-				pathPatternParser.parse(this.endpointMapping.getPath()));
-		RequestMethodsRequestCondition methods = new RequestMethodsRequestCondition(RequestMethod.GET);
-		ProducesRequestCondition produces = new ProducesRequestCondition(
-				StringUtils.toStringArray(this.endpointMediaTypes.getProduced()));
-		RequestMappingInfo mapping = new RequestMappingInfo(patterns, methods, null, null, null, produces, null);
+		String path = this.endpointMapping.getPath();
+		String[] produces = StringUtils.toStringArray(this.endpointMediaTypes.getProduced());
+		RequestMappingInfo mapping = RequestMappingInfo.paths(path).methods(RequestMethod.GET).produces(produces)
+				.build();
 		LinksHandler linksHandler = getLinksHandler();
 		registerMapping(mapping, linksHandler,
 				ReflectionUtils.findMethod(linksHandler.getClass(), "links", ServerWebExchange.class));
@@ -223,7 +211,8 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 
 	/**
 	 * An {@link OperationInvoker} that performs the invocation of a blocking operation on
-	 * a separate thread using Reactor's {@link Schedulers#elastic() elastic scheduler}.
+	 * a separate thread using Reactor's {@link Schedulers#boundedElastic() bounded
+	 * elastic scheduler}.
 	 */
 	protected static final class ElasticSchedulerInvoker implements OperationInvoker {
 
@@ -235,7 +224,7 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 
 		@Override
 		public Object invoke(InvocationContext context) {
-			return Mono.fromCallable(() -> this.invoker.invoke(context)).subscribeOn(Schedulers.elastic());
+			return Mono.fromCallable(() -> this.invoker.invoke(context)).subscribeOn(Schedulers.boundedElastic());
 		}
 
 	}
@@ -308,6 +297,7 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 
 		@Override
 		public Mono<ResponseEntity<Object>> handle(ServerWebExchange exchange, Map<String, String> body) {
+			ApiVersion apiVersion = ApiVersion.fromHttpHeaders(exchange.getRequest().getHeaders());
 			Map<String, Object> arguments = getArguments(exchange, body);
 			String matchAllRemainingPathSegmentsVariable = this.operation.getRequestPredicate()
 					.getMatchAllRemainingPathSegmentsVariable();
@@ -316,7 +306,7 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 						tokenizePathSegments((String) arguments.get(matchAllRemainingPathSegmentsVariable)));
 			}
 			return this.securityContextSupplier.get()
-					.map((securityContext) -> new InvocationContext(securityContext, arguments))
+					.map((securityContext) -> new InvocationContext(apiVersion, securityContext, arguments))
 					.flatMap((invocationContext) -> handleResult((Publisher<?>) this.invoker.invoke(invocationContext),
 							exchange.getRequest().getMethod()));
 		}
@@ -358,8 +348,7 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 			WebEndpointResponse<?> webEndpointResponse = (WebEndpointResponse<?>) response;
-			return new ResponseEntity<>(webEndpointResponse.getBody(),
-					HttpStatus.valueOf(webEndpointResponse.getStatus()));
+			return ResponseEntity.status(webEndpointResponse.getStatus()).body(webEndpointResponse.getBody());
 		}
 
 		@Override
@@ -372,7 +361,7 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 	/**
 	 * Handler for a {@link ReactiveWebOperation}.
 	 */
-	private final class WriteOperationHandler {
+	private static final class WriteOperationHandler {
 
 		private final ReactiveWebOperation operation;
 
@@ -391,7 +380,7 @@ public abstract class AbstractWebFluxEndpointHandlerMapping extends RequestMappi
 	/**
 	 * Handler for a {@link ReactiveWebOperation}.
 	 */
-	private final class ReadOperationHandler {
+	private static final class ReadOperationHandler {
 
 		private final ReactiveWebOperation operation;
 

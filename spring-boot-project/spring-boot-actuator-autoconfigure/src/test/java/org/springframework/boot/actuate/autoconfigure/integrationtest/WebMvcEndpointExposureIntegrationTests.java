@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,7 +91,7 @@ class WebMvcEndpointExposureIntegrationTests {
 			assertThat(isExposed(client, HttpMethod.GET, "customservlet")).isFalse();
 			assertThat(isExposed(client, HttpMethod.GET, "env")).isFalse();
 			assertThat(isExposed(client, HttpMethod.GET, "health")).isTrue();
-			assertThat(isExposed(client, HttpMethod.GET, "info")).isTrue();
+			assertThat(isExposed(client, HttpMethod.GET, "info")).isFalse();
 			assertThat(isExposed(client, HttpMethod.GET, "mappings")).isFalse();
 			assertThat(isExposed(client, HttpMethod.POST, "shutdown")).isFalse();
 			assertThat(isExposed(client, HttpMethod.GET, "threaddump")).isFalse();
@@ -164,7 +165,10 @@ class WebMvcEndpointExposureIntegrationTests {
 	private WebTestClient createClient(AssertableWebApplicationContext context) {
 		int port = context.getSourceApplicationContext(ServletWebServerApplicationContext.class).getWebServer()
 				.getPort();
-		return WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
+		ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+				.codecs((configurer) -> configurer.defaultCodecs().maxInMemorySize(-1)).build();
+		return WebTestClient.bindToServer().baseUrl("http://localhost:" + port).exchangeStrategies(exchangeStrategies)
+				.build();
 	}
 
 	private boolean isExposed(WebTestClient client, HttpMethod method, String path) throws Exception {

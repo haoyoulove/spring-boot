@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ import javax.management.MBeanServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.actuate.autoconfigure.endpoint.ExposeExcludePropertyEndpointFilter;
+import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.endpoint.expose.IncludeExcludeEndpointFilter;
 import org.springframework.boot.actuate.endpoint.EndpointFilter;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.invoke.OperationInvokerAdvisor;
@@ -58,7 +59,7 @@ import org.springframework.util.ObjectUtils;
  * @since 2.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@AutoConfigureAfter(JmxAutoConfiguration.class)
+@AutoConfigureAfter({ JmxAutoConfiguration.class, EndpointAutoConfiguration.class })
 @EnableConfigurationProperties(JmxEndpointProperties.class)
 @ConditionalOnProperty(prefix = "spring.jmx", name = "enabled", havingValue = "true")
 public class JmxEndpointAutoConfiguration {
@@ -83,23 +84,29 @@ public class JmxEndpointAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnSingleCandidate(MBeanServer.class)
-	public JmxEndpointExporter jmxMBeanExporter(MBeanServer mBeanServer, Environment environment,
-			ObjectProvider<ObjectMapper> objectMapper, JmxEndpointsSupplier jmxEndpointsSupplier) {
+	@ConditionalOnMissingBean(EndpointObjectNameFactory.class)
+	public DefaultEndpointObjectNameFactory endpointObjectNameFactory(MBeanServer mBeanServer,
+			Environment environment) {
 		String contextId = ObjectUtils.getIdentityHexString(this.applicationContext);
-		EndpointObjectNameFactory objectNameFactory = new DefaultEndpointObjectNameFactory(this.properties, environment,
-				mBeanServer, contextId);
+		return new DefaultEndpointObjectNameFactory(this.properties, environment, mBeanServer, contextId);
+	}
+
+	@Bean
+	@ConditionalOnSingleCandidate(MBeanServer.class)
+	public JmxEndpointExporter jmxMBeanExporter(MBeanServer mBeanServer,
+			EndpointObjectNameFactory endpointObjectNameFactory, ObjectProvider<ObjectMapper> objectMapper,
+			JmxEndpointsSupplier jmxEndpointsSupplier) {
 		JmxOperationResponseMapper responseMapper = new JacksonJmxOperationResponseMapper(
 				objectMapper.getIfAvailable());
-		return new JmxEndpointExporter(mBeanServer, objectNameFactory, responseMapper,
+		return new JmxEndpointExporter(mBeanServer, endpointObjectNameFactory, responseMapper,
 				jmxEndpointsSupplier.getEndpoints());
 
 	}
 
 	@Bean
-	public ExposeExcludePropertyEndpointFilter<ExposableJmxEndpoint> jmxIncludeExcludePropertyEndpointFilter() {
+	public IncludeExcludeEndpointFilter<ExposableJmxEndpoint> jmxIncludeExcludePropertyEndpointFilter() {
 		JmxEndpointProperties.Exposure exposure = this.properties.getExposure();
-		return new ExposeExcludePropertyEndpointFilter<>(ExposableJmxEndpoint.class, exposure.getInclude(),
+		return new IncludeExcludeEndpointFilter<>(ExposableJmxEndpoint.class, exposure.getInclude(),
 				exposure.getExclude(), "*");
 	}
 
