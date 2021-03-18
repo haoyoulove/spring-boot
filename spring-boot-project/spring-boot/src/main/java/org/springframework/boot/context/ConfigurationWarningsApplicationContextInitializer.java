@@ -48,6 +48,8 @@ import org.springframework.util.StringUtils;
  *
  * @author Phillip Webb
  * @since 1.2.0
+ * org.springframework.boot.context.ConfigurationWarningsApplicationContextInitializer ，
+ * 实现 ApplicationContextInitializer 接口，用于检查配置，报告错误的配置。如下是其类上的注释：
  */
 public class ConfigurationWarningsApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -56,6 +58,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	@Override
 	public void initialize(ConfigurableApplicationContext context) {
+		// 注册 ConfigurationWarningsPostProcessor 到 Spring 容器中
 		context.addBeanFactoryPostProcessor(new ConfigurationWarningsPostProcessor(getChecks()));
 	}
 
@@ -69,6 +72,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	/**
 	 * {@link BeanDefinitionRegistryPostProcessor} to report warnings.
+	 * ConfigurationWarningsApplicationContextInitializer 的内部静态类，实现 PriorityOrdered、BeanDefinitionRegistryPostProcessor 接口
 	 */
 	protected static final class ConfigurationWarningsPostProcessor
 			implements PriorityOrdered, BeanDefinitionRegistryPostProcessor {
@@ -90,6 +94,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+			// 遍历 Check 数组，执行校验。若有错，则打印 warn 日志
 			for (Check check : this.checks) {
 				String message = check.getWarning(registry);
 				if (StringUtils.hasLength(message)) {
@@ -109,6 +114,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	/**
 	 * A single check that can be applied.
+	 * ConfigurationWarningsApplicationContextInitializer 的内部接口，校验器
 	 */
 	@FunctionalInterface
 	protected interface Check {
@@ -124,11 +130,20 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	/**
 	 * {@link Check} for {@code @ComponentScan} on problematic package.
+	 *
 	 */
+
 	protected static class ComponentScanPackageCheck implements Check {
 
+		/**
+		 * 有问题的包的集合。
+		 *
+		 * 即禁止使用 @ComponentScan 注解扫描这个集合中的包
+		 */
 		private static final Set<String> PROBLEM_PACKAGES;
 
+		// 即禁止扫描 "org.springframework" 和 "org" 包。因为 "org.springframework" 包下，有非常多的 Bean ，
+		// 这样扫描，会错误的注入很多 Bean
 		static {
 			Set<String> packages = new HashSet<>();
 			packages.add("org.springframework");
@@ -138,11 +153,15 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 		@Override
 		public String getWarning(BeanDefinitionRegistry registry) {
+			// <1> 获得要扫描的包
 			Set<String> scannedPackages = getComponentScanningPackages(registry);
+			// <2> 获得要扫描的包中，有问题的包
 			List<String> problematicPackages = getProblematicPackages(scannedPackages);
+			// <3.1> 如果 problematicPackages 为空，说明不存在问题
 			if (problematicPackages.isEmpty()) {
 				return null;
 			}
+			// <3.2> 如果 problematicPackages 非空，说明有问题，返回错误提示
 			return "Your ApplicationContext is unlikely to start due to a @ComponentScan of "
 					+ StringUtils.collectionToDelimitedString(problematicPackages, ", ") + ".";
 		}
@@ -161,8 +180,10 @@ public class ConfigurationWarningsApplicationContextInitializer
 		}
 
 		private void addComponentScanningPackages(Set<String> packages, AnnotationMetadata metadata) {
+			// 获得 @ComponentScan 注解
 			AnnotationAttributes attributes = AnnotationAttributes
 					.fromMap(metadata.getAnnotationAttributes(ComponentScan.class.getName(), true));
+			// 如果存在，则添加到 packages 中
 			if (attributes != null) {
 				addPackages(packages, attributes.getStringArray("value"));
 				addPackages(packages, attributes.getStringArray("basePackages"));
@@ -187,9 +208,12 @@ public class ConfigurationWarningsApplicationContextInitializer
 			}
 		}
 
+		// 就是判断 scannedPackages 哪些在 PROBLEM_PACKAGES 中。
 		private List<String> getProblematicPackages(Set<String> scannedPackages) {
+			// 有问题的包的集合
 			List<String> problematicPackages = new ArrayList<>();
 			for (String scannedPackage : scannedPackages) {
+				// 判断是否在 PROBLEM_PACKAGES 中。如果是，则添加到 problematicPackages 中
 				if (isProblematicPackage(scannedPackage)) {
 					problematicPackages.add(getDisplayName(scannedPackage));
 				}

@@ -26,10 +26,11 @@
 			<properties>
 				<spring-javaformat.version>0.0.26</spring-javaformat.version>
 				<nohttp-checkstyle.version>0.0.4.RELEASE</nohttp-checkstyle.version>
+				<disable.checks>true</disable.checks> <!--我是被新增的-->
 			</properties>
 			<build>
 				<plugins>
-					<plugin>
+					<!--<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-checkstyle-plugin</artifactId>
 						<version>3.1.0</version>
@@ -85,7 +86,7 @@
 								<inherited>false</inherited>
 							</execution>
 						</executions>
-					</plugin>
+					</plugin>-->
 					<plugin>
 						<groupId>io.spring.javaformat</groupId>
 						<artifactId>spring-javaformat-maven-plugin</artifactId>
@@ -136,6 +137,8 @@
 					<url>${repository}</url>
 					<snapshots>
 						<enabled>true</enabled>
+						<!-- 增加快照更新策略 有每日更新、永远检查更新、从不检查更新和自定义时间间隔更新-->
+						<updatePolicy>never</updatePolicy>
 					</snapshots>
 				</repository>
 			</repositories>

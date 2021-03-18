@@ -161,8 +161,7 @@ public final class ConditionEvaluationReport {
 	}
 
 	/**
-	 * Attempt to find the {@link ConditionEvaluationReport} for the specified bean
-	 * factory.
+	 * Attempt to find the {@link ConditionEvaluationReport} for the specified bean factory.
 	 * @param beanFactory the bean factory (may be {@code null})
 	 * @return the {@link ConditionEvaluationReport} or {@code null}
 	 */

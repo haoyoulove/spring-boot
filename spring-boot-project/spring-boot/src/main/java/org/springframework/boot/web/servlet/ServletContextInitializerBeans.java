@@ -76,13 +76,14 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
 
 	private List<ServletContextInitializer> sortedList;
 
+	// 第五层：ServletContextInitializerBeans 的构造方法
 	@SafeVarargs
 	public ServletContextInitializerBeans(ListableBeanFactory beanFactory,
 			Class<? extends ServletContextInitializer>... initializerTypes) {
 		this.initializers = new LinkedMultiValueMap<>();
 		this.initializerTypes = (initializerTypes.length != 0) ? Arrays.asList(initializerTypes)
 				: Collections.singletonList(ServletContextInitializer.class);
-		addServletContextInitializerBeans(beanFactory);
+		addServletContextInitializerBeans(beanFactory); // 第六层的入口
 		addAdaptableBeans(beanFactory);
 		List<ServletContextInitializer> sortedInitializers = this.initializers.values().stream()
 				.flatMap((value) -> value.stream().sorted(AnnotationAwareOrderComparator.INSTANCE))
@@ -91,6 +92,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
 		logMappings(this.initializers);
 	}
 
+	// 第六层：addServletContextInitializerBeans(beanFactory)
 	private void addServletContextInitializerBeans(ListableBeanFactory beanFactory) {
 		for (Class<? extends ServletContextInitializer> initializerType : this.initializerTypes) {
 			for (Entry<String, ? extends ServletContextInitializer> initializerBean : getOrderedBeansOfType(beanFactory,

@@ -29,8 +29,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Base of all {@link Condition} implementations used with Spring Boot. Provides sensible
- * logging to help the user diagnose what classes are loaded.
+ * Base of all {@link Condition} implementations used with Spring Boot. Provides sensiblelogging to help the user diagnose what classes are loaded.
  *
  * @author Phillip Webb
  * @author Greg Turnquist
@@ -40,13 +39,19 @@ public abstract class SpringBootCondition implements Condition {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	// 注解过滤 用于注解来实现
 	@Override
 	public final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		// <1> 获得注解的是方法名还是类名
 		String classOrMethodName = getClassOrMethodName(metadata);
 		try {
+			// <2> 条件匹配结果
 			ConditionOutcome outcome = getMatchOutcome(context, metadata);
+			// <3> 打印结果
 			logOutcome(classOrMethodName, outcome);
+			// <4> 记录
 			recordEvaluation(context, classOrMethodName, outcome);
+			// <5> 返回是否匹配
 			return outcome.isMatch();
 		}
 		catch (NoClassDefFoundError ex) {
@@ -73,10 +78,12 @@ public abstract class SpringBootCondition implements Condition {
 	}
 
 	private static String getClassOrMethodName(AnnotatedTypeMetadata metadata) {
+		// 类
 		if (metadata instanceof ClassMetadata) {
 			ClassMetadata classMetadata = (ClassMetadata) metadata;
 			return classMetadata.getClassName();
 		}
+		// 方法
 		MethodMetadata methodMetadata = (MethodMetadata) metadata;
 		return methodMetadata.getDeclaringClassName() + "#" + methodMetadata.getMethodName();
 	}
@@ -122,6 +129,8 @@ public abstract class SpringBootCondition implements Condition {
 	 * @param metadata the annotation meta-data
 	 * @param conditions conditions to test
 	 * @return {@code true} if any condition matches.
+	 *
+	 * 任一匹配
 	 */
 	protected final boolean anyMatches(ConditionContext context, AnnotatedTypeMetadata metadata,
 			Condition... conditions) {
@@ -141,6 +150,7 @@ public abstract class SpringBootCondition implements Condition {
 	 * @return {@code true} if the condition matches.
 	 */
 	protected final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata, Condition condition) {
+		// 如果是 SpringBootCondition 类型，执行 SpringBootCondition 的直接匹配方法（无需日志）
 		if (condition instanceof SpringBootCondition) {
 			return ((SpringBootCondition) condition).getMatchOutcome(context, metadata).isMatch();
 		}
