@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.config.SortedResourcesFactoryBean;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.util.StringUtils;
@@ -46,8 +47,9 @@ import org.springframework.util.StringUtils;
  * @author Eddú Meléndez
  * @author Stephane Nicoll
  * @author Kazuki Shimizu
+ * @since 2.5.0
  */
-class DataSourceInitializer {
+public class DataSourceInitializer {
 
 	private static final Log logger = LogFactory.getLog(DataSourceInitializer.class);
 
@@ -64,32 +66,25 @@ class DataSourceInitializer {
 	 * @param properties the matching configuration
 	 * @param resourceLoader the resource loader to use (can be null)
 	 */
-	DataSourceInitializer(DataSource dataSource, DataSourceProperties properties, ResourceLoader resourceLoader) {
+	public DataSourceInitializer(DataSource dataSource, DataSourceProperties properties,
+			ResourceLoader resourceLoader) {
 		this.dataSource = dataSource;
 		this.properties = properties;
-		this.resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader();
+		this.resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader(null);
 	}
 
 	/**
-	 * Create a new instance with the {@link DataSource} to initialize and its matching
-	 * {@link DataSourceProperties configuration}.
-	 * @param dataSource the datasource to initialize
-	 * @param properties the matching configuration
+	 * Initializes the {@link DataSource} by running DDL and DML scripts.
+	 * @return {@code true} if one or more scripts were applied to the database, otherwise
+	 * {@code false}
 	 */
-	DataSourceInitializer(DataSource dataSource, DataSourceProperties properties) {
-		this(dataSource, properties, null);
+	public boolean initializeDataSource() {
+		boolean initialized = createSchema();
+		initialized = initSchema() && initialized;
+		return initialized;
 	}
 
-	DataSource getDataSource() {
-		return this.dataSource;
-	}
-
-	/**
-	 * Create the schema if necessary.
-	 * @return {@code true} if the schema was created
-	 * @see DataSourceProperties#getSchema()
-	 */
-	boolean createSchema() {
+	private boolean createSchema() {
 		List<Resource> scripts = getScripts("spring.datasource.schema", this.properties.getSchema(), "schema");
 		if (!scripts.isEmpty()) {
 			if (!isEnabled()) {
@@ -103,21 +98,18 @@ class DataSourceInitializer {
 		return !scripts.isEmpty();
 	}
 
-	/**
-	 * Initialize the schema if necessary.
-	 * @see DataSourceProperties#getData()
-	 */
-	void initSchema() {
+	private boolean initSchema() {
 		List<Resource> scripts = getScripts("spring.datasource.data", this.properties.getData(), "data");
 		if (!scripts.isEmpty()) {
 			if (!isEnabled()) {
 				logger.debug("Initialization disabled (not running data scripts)");
-				return;
+				return false;
 			}
 			String username = this.properties.getDataUsername();
 			String password = this.properties.getDataPassword();
 			runScripts(scripts, username, password);
 		}
+		return !scripts.isEmpty();
 	}
 
 	private boolean isEnabled() {
@@ -161,7 +153,7 @@ class DataSourceInitializer {
 				}
 				else if (validate) {
 					throw new InvalidConfigurationPropertyValueException(propertyName, resource,
-							"The specified resource does not exist.");
+							"No resources were found at location '" + location + "'.");
 				}
 			}
 		}
@@ -194,10 +186,9 @@ class DataSourceInitializer {
 			populator.addScript(resource);
 		}
 		DataSource dataSource = this.dataSource;
-		if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-			dataSource = DataSourceBuilder.create(this.properties.getClassLoader())
-					.driverClassName(this.properties.determineDriverClassName()).url(this.properties.determineUrl())
-					.username(username).password(password).build();
+		if (StringUtils.hasText(username) && dataSource != null) {
+			dataSource = DataSourceBuilder.derivedFrom(dataSource).type(SimpleDriverDataSource.class).username(username)
+					.password(password).build();
 		}
 		DatabasePopulatorUtils.execute(populator, dataSource);
 	}

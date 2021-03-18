@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
@@ -38,7 +39,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Andy Wilkinson
  */
-abstract class AbstractApplicationLauncher implements BeforeEachCallback, AfterEachCallback {
+abstract class AbstractApplicationLauncher implements BeforeEachCallback {
 
 	private final ApplicationBuilder applicationBuilder;
 
@@ -54,13 +55,22 @@ abstract class AbstractApplicationLauncher implements BeforeEachCallback, AfterE
 	}
 
 	@Override
-	public void afterEach(ExtensionContext context) throws Exception {
-		this.process.destroy();
+	public void beforeEach(ExtensionContext context) throws Exception {
+		if (this.process == null) {
+			this.process = startApplication();
+		}
 	}
 
-	@Override
-	public void beforeEach(ExtensionContext context) throws Exception {
-		this.process = startApplication();
+	void destroyProcess() {
+		if (this.process != null) {
+			this.process.destroy();
+			try {
+				this.process.waitFor();
+			}
+			catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
 	final int getHttpPort() {
@@ -93,16 +103,12 @@ abstract class AbstractApplicationLauncher implements BeforeEachCallback, AfterE
 	}
 
 	private int awaitServerPort(Process process, File serverPortFile) throws Exception {
-		long end = System.currentTimeMillis() + 30000;
-		while (serverPortFile.length() == 0) {
-			if (System.currentTimeMillis() > end) {
-				throw new IllegalStateException("server.port file was not written within 30 seconds");
-			}
+		Awaitility.waitAtMost(Duration.ofSeconds(180)).until(serverPortFile::length, (length) -> {
 			if (!process.isAlive()) {
-				throw new IllegalStateException("Application failed to launch");
+				throw new IllegalStateException("Application failed to start");
 			}
-			Thread.sleep(100);
-		}
+			return length > 0;
+		});
 		return Integer.parseInt(FileCopyUtils.copyToString(new FileReader(serverPortFile)));
 	}
 

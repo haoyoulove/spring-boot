@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,15 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -39,6 +42,7 @@ import org.junit.platform.commons.util.ReflectionUtils;
 
 import org.springframework.boot.testsupport.BuildOutput;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -59,6 +63,10 @@ class EmbeddedServerContainerInvocationContextProvider
 	private static final BuildOutput buildOutput = new BuildOutput(
 			EmbeddedServerContainerInvocationContextProvider.class);
 
+	private final Map<String, ApplicationBuilder> builderCache = new HashMap<>();
+
+	private final Map<String, AbstractApplicationLauncher> launcherCache = new HashMap<>();
+
 	private final Path tempDir;
 
 	EmbeddedServerContainerInvocationContextProvider() throws IOException {
@@ -74,14 +82,13 @@ class EmbeddedServerContainerInvocationContextProvider
 	public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
 		EmbeddedServletContainerTest annotation = context.getRequiredTestClass()
 				.getAnnotation(EmbeddedServletContainerTest.class);
-		return CONTAINERS.stream()
-				.map((container) -> new ApplicationBuilder(this.tempDir, annotation.packaging(),
-						container))
+		return CONTAINERS
+				.stream().map(
+						(container) -> getApplicationBuilder(annotation, container))
 				.flatMap(
 						(builder) -> Stream
 								.of(annotation.launchers()).map(
-										(launcherClass) -> ReflectionUtils.newInstance(launcherClass, builder,
-												buildOutput))
+										(launcherClass) -> getAbstractApplicationLauncher(builder, launcherClass))
 								.map((launcher) -> new EmbeddedServletContainerInvocationContext(
 										StringUtils.capitalize(builder.getContainer()) + ": "
 												+ launcher.getDescription(builder.getPackaging()),
@@ -90,7 +97,35 @@ class EmbeddedServerContainerInvocationContextProvider
 
 	@Override
 	public void afterAll(ExtensionContext context) throws Exception {
+		cleanupCaches();
 		FileSystemUtils.deleteRecursively(this.tempDir);
+	}
+
+	private void cleanupCaches() {
+		this.launcherCache.values().forEach(AbstractApplicationLauncher::destroyProcess);
+		this.launcherCache.clear();
+		this.builderCache.clear();
+	}
+
+	private AbstractApplicationLauncher getAbstractApplicationLauncher(ApplicationBuilder builder,
+			Class<? extends AbstractApplicationLauncher> launcherClass) {
+		String cacheKey = builder.getContainer() + ":" + builder.getPackaging() + ":" + launcherClass.getName();
+		if (this.launcherCache.containsKey(cacheKey)) {
+			return this.launcherCache.get(cacheKey);
+		}
+		AbstractApplicationLauncher launcher = ReflectionUtils.newInstance(launcherClass, builder, buildOutput);
+		this.launcherCache.put(cacheKey, launcher);
+		return launcher;
+	}
+
+	private ApplicationBuilder getApplicationBuilder(EmbeddedServletContainerTest annotation, String container) {
+		String cacheKey = container + ":" + annotation.packaging();
+		if (this.builderCache.containsKey(cacheKey)) {
+			return this.builderCache.get(cacheKey);
+		}
+		ApplicationBuilder builder = new ApplicationBuilder(this.tempDir, annotation.packaging(), container);
+		this.builderCache.put(cacheKey, builder);
+		return builder;
 	}
 
 	static class EmbeddedServletContainerInvocationContext implements TestTemplateInvocationContext, ParameterResolver {
@@ -154,7 +189,8 @@ class EmbeddedServerContainerInvocationContextProvider
 		@Override
 		public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
 				throws ParameterResolutionException {
-			RestTemplate rest = new RestTemplate();
+			RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory(
+					HttpClients.custom().setRetryHandler(new StandardHttpRequestRetryHandler(10, false)).build()));
 			rest.setErrorHandler(new ResponseErrorHandler() {
 
 				@Override
